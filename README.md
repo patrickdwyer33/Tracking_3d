@@ -11,7 +11,7 @@ The most significant contributions of this repository can be found in the follow
 
 ### model.py
 
-This file contains a PyTorch nn.Module class called "Model".
+This file contains a PyTorch `nn.Module` class called `Model`.
 
 It is primarily a three dimensional Convolutional Neural Network that accepts four channels as there are four input camera views and outputs eight channels as there are eight body parts that we wish to track. It consists of eight [convolutional layers](https://pytorch.org/docs/stable/generated/torch.nn.Conv3d.html) and eight [pooling layers](https://pytorch.org/docs/stable/generated/torch.nn.MaxPool3d.html?highlight=maxpool3d#torch.nn.MaxPool3d), with a pooling layer following each convolutional layer. The specific parameters that each layer employs can be found in the file. Note that the default parameters specified therein are a product of the known input dimensions (we'll discuss the input at the end of [the following section](#why-this-model?)), and these parameters may need to change if the input dimensions change drastically.
 
@@ -66,7 +66,7 @@ This model may also accept known edge distances if so desired. This functionalit
 
 ### projector.py
 
-This file is notable even when considered independently of this project. It consists primarily of a torch.autograd.Function class called ProjectFunction. By far most of the time spent on this project consisted of determining how to correctly incorporate 3d->2d point projection into PyTorch. Ultimately, after much trial and error, I decided to piggy back off the functionality provided by OpenCV's `ProjectPoints()` function. To do this, I wrapped their function within the ProjectFunction class's forward pass, and implemented its associated [vector-Jacobian product](https://pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html) in the backward pass. 
+This file is notable even when considered independently of this project. It consists primarily of a `torch.autograd.Function` class called `ProjectFunction`. Much of the time spent on this project consisted of determining how to correctly incorporate 3d->2d point projection into PyTorch. Ultimately, after much trial and error, I decided to piggy back off the functionality provided by OpenCV's `ProjectPoints()` function. To do this, I wrapped their function within the ProjectFunction class's forward pass, and implemented its associated [vector-Jacobian product](https://pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html) in the backward pass. 
 
 This allows any model I implement in PyTorch that projects to compute the necessary partial derivatives through this projection. Wonderfully, OpenCV provides jacobian information with respect to the inputted camera parameters. Not wonderfully, it does not provide similar information for the input parameters. So, instead of analytically calculating these derivatives, I estimated them numerically. This seemed very reasonable to me as minute changes in an inputted 3d point should not result in drastic changes in the resulting projected 2d point. 
 
