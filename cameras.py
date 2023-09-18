@@ -11,10 +11,10 @@ class Camera:
         self.tvec = tvec
         self.K = K
         self.D = D
-        rvec_numpy = np.array(rvec,dtype=np.double).flatten()
+        rvec_numpy = rvec.detach().numpy()
         self.R = torch.tensor(cv2.Rodrigues(rvec_numpy)[0].reshape(3,3))
         tvec_reshaped = tvec.reshape(3,1)
-        top_T = torch.cat((torch.clone(self.R), tvec_reshaped), dim=1)
+        top_T = torch.cat((torch.clone(self.R).requires_grad_(True), tvec_reshaped), dim=1)
         bottom_T = torch.tensor([[0.,0.,0.,1.]],dtype=torch.double)
         self.T = torch.cat((top_T, bottom_T), dim=0)
         self.update_cam_pos()
