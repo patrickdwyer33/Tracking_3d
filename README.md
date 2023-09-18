@@ -60,9 +60,9 @@ So, I decided to use a model that could utilize the 3d structure of the mouse to
 
 This paper uses a self-supervised model, which is not required in this context. So, I simplified it drastically by introducing a manually labeled dataset. The dataset consists of 267 sets of 4 images with 8 labeled body parts per image.
 
- The general idea behind this model is to construct a voxel space consisting of four channels and assign values to voxels in channel i in accordance with the bilinear interpolation of the projection onto camera i. This voxel space is then what is passed into the 3d convolutional network which infers 3d points and projects them onto ground truth values. Given enough labelled data, which I believe I have provided, and good enough extrinsic camera parameters, I am confident this model will work. 
+The general idea behind this model is to construct a voxel space consisting of four channels and assign values to voxels in channel i in accordance with the bilinear interpolation of the projection onto camera i. This voxel space is then what is passed into the 3d convolutional network which infers 3d points and projects them onto ground truth values. Given enough labelled data, which I believe I have provided, and good enough extrinsic camera parameters, I am confident this model will work. 
 
- This model may also accept known edge distances if so desired. This functionality can be integrated by adding the correct information to [body_parts.json](#body_parts.json). The information that currently exists therein is dummy information.
+This model may also accept known edge distances if so desired. This functionality can be integrated by adding the correct information to [body_parts.json](#body_parts.json). The information that currently exists therein is dummy information.
 
 ### projector.py
 
@@ -102,41 +102,29 @@ Better intrinsic parameters, particularly distortion coefficients, may prove to 
 
 This project is written in Python 3.9.10. However, any version of Python >= 3.6 should be just fine. To install this project on your local machine, it is recommended that you create a virtual environment by running the following command in your terminal:
 
-```
-python3 -m venv ./venv_name
-```
+	python3 -m venv ./venv_name
 
 After this, make sure to activate the environment like so:
 
-```
-source ./venv_name/bin/activate
-```
+	source ./venv_name/bin/activate
 
 This will run the "activate" binary file, and you should see 
 
-```
-(venv_name) youruser@yourcomputer cur_directory % 
-```
+	(venv_name) youruser@yourcomputer cur_directory % 
 
 Or something very similar. All of the above is based on downloading to a mac, but it shouldn't be very different on other platforms. 
 
 Once you've done this you can easily install the necessary packages to your virual environment like so:
 
-```
-pip3 install -r ./requirements.txt
-```
+	pip3 install -r ./requirements.txt
 
 Finally, you must install ffmpeg on your machine to use some of the code that interacts directly with video files. If you have homebrew installed you can do this easily:
 
-```
-brew install ffmpeg
-```
+	brew install ffmpeg
 
 At this point, after you've unzipped all the .zip files or set up your own data, you should be able to run any of the python files in this repository like so:
 
-```
-python3 -m python_file_name
-```
+	python3 -m python_file_name
 
 Note that you should not include the ".py" file extension when running this command.
 
@@ -152,41 +140,38 @@ This project contains a directory *notebooks* which contain most of the same log
 
 Note that all of the PyTorch code in this project is designed to notice whether or not your machine has a cuda gpu available and act in accordance. For reference, this works with the following simple line:
 
-```
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-```
+	device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 ## Setup
 
 In order to use the code provided herein, you must have a video dataset.
 
 This dataset must follow the following structure:
+
 ```
-* All_Data
-    - trial1
-        - cam1.videofile
-        - ...
-        - cami.videofile
-        - ...
-        - camn.videofile
-    - trial2
-        - cam1.videofile
-        - ...
-        - cami.videofile
-        - ...
-        - camn.videofile
-    ...
+/All_Data
+	/trial1
+		/cam1.videofile
+		/cam2.videofile
+		/cam3.videofile
+		/…
+	/trial2
+		/cam1.videofile
+		/cam2.videofile
+		/cam3.videofile
+		/…
+	/…
 ```
 
-Where "videofile" is any video extension supported by ffmpeg. Note that the naming of these video files does not matter except that the order of the list that contains there names and is sorted by Python's .sort() matches up with the order of the list that contains the names of cameras (specified in [camera_parameters.json](#camera_parameters.json)) after it too is sorted the same way. To accomplish this easily, name each file "{name-of-camera}.{video-file-extension}".
+Where `videofile` is any video extension supported by ffmpeg. Note that the naming of these video files does not matter except that the order of the list that contains there names and is sorted by Python's .sort() matches up with the order of the list that contains the names of cameras (specified in [camera_parameters.json](#camera_parameters.json)) after it too is sorted the same way. To accomplish this easily, name each file `{name-of-camera}.{video-file-extension}`.
 
-The only other requirement is that each set of videos starts simulatenously. 
+The only other requirement is that each set of videos starts simultaneously. 
 
-./All_Data.zip contains an example of these requirements in the original context of this project.
+`./All_Data.zip` contains an example of these requirements in the original context of this project.
 
 ### Data Wrangling
 
-Once you've got your video files set up, you can either use the training data provided in ./Training_Data.zip, or you can create your own. To do this, you can use the conveniently named "create_training_data.py".
+Once you've got your video files set up, you can either use the training data provided in `./Training_Data.zip`, or you can create your own. To do this, you can use the conveniently named "create_training_data.py".
 
 This file has default arguments that you can override easily by passing commandline key-value arguments. 
 
