@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     arena_info = None
     with open(arena_info_path, 'r', encoding="utf-8") as f:
-        arena_info = json.load(f)["names"]
+        arena_info = json.load(f)
 
     N_cams = len(cams)
 
@@ -80,10 +80,10 @@ if __name__ == "__main__":
         for i in range(N_cams):
             cam = cams[i]
             image_points = project(all_points_tensor,
-                                torch.tensor(cam.rvec,dtype=torch.double,device=device),
-                                torch.tensor(cam.tvec,dtype=torch.double,device=device),
+                                cam.rvec.clone().detach(),
+                                cam.tvec.clone().detach(),
                                 K_mx=cam.K,
-                                    D_vec=cam.D,
+                                D_vec=cam.D,
                                 fisheye=cam.fisheye
                                 )
             all_image_points.append(image_points)
@@ -184,6 +184,9 @@ if __name__ == "__main__":
         size = len(dataloader.dataset)
         model.train()
         for idx, batch in enumerate(dataloader):
+            if idx > 2 and idx < 45: 
+                print(idx)
+                continue
             batch_in = batch[0]
             target = batch[1]
             batch_in = batch_in.to(device)
@@ -194,6 +197,7 @@ if __name__ == "__main__":
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
+            print(idx)
             if idx % 100 == 0:
                 loss_item, current = loss.item(), (idx + 1) * len(batch_in)
                 if save_iter: torch.save(model.state_dict(), out_path)

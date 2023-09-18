@@ -164,7 +164,7 @@ if __name__ == "__main__":
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    cams = cameras.get_cameras()
+    cams = cameras.get_cameras(extrinsics_grad=True)
 
     body_parts_path = os.path.join(os.getcwd(), "body_parts.json")
             
@@ -259,7 +259,8 @@ if __name__ == "__main__":
             params = torch.cat((rvecs_,tvecs_),dim=1)
             params = params.view(-1)
             params = params.clone().detach().requires_grad_(True)
-
+            print("inner_idx: " + str(j))
+            print("params: " + params)
             args = (image_points, dirs, cams)
             fn_wrapper = lambda x: Compute_Residuals(x, *args)
             extrinsics = torchimize_lsq_lma(params,

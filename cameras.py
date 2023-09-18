@@ -5,15 +5,20 @@ import cv2
 import json
 
 class Camera:
-    def __init__(self, name, K, D, T, fisheye):
+    def __init__(self, name, rvec, tvec, K, D, fisheye):
         self.name = name
+        self.rvec = rvec
+        self.tvec = tvec
         self.K = K
         self.D = D
-        self.set_T(T)
+        rvec_numpy = np.array(rvec,dtype=np.double).flatten()
+        self.R = torch.tensor(cv2.Rodrigues(rvec_numpy)[0].reshape(3,3))
+        tvec_reshaped = tvec.reshape(3,1)
+        top_T = torch.cat((torch.clone(self.R), tvec_reshaped), dim=1)
+        bottom_T = torch.tensor([[0.,0.,0.,1.]],dtype=torch.double)
+        self.T = torch.cat((top_T, bottom_T), dim=0)
+        self.update_cam_pos()
         self.fisheye = fisheye
-        print(name)
-        print(self.rvec)
-        print(self.tvec)
         
     def set_T(self, new_T):
         self.T = new_T
@@ -26,7 +31,7 @@ class Camera:
         self.R = self.T[:3,:3]
     
     def update_R_vec(self):
-        self.rvec = cv2.Rodrigues(self.R)[0].flatten()
+        self.rvec = torch.tensor(cv2.Rodrigues(self.R)[0].flatten(),dtype=torch.double)
         
     def update_T_vec(self):
         self.tvec = self.T[:3,3:4].flatten()
@@ -46,7 +51,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 def get_cameras(extrinsics_grad = False, names=names, device=device, json_path=os.path.join(os.getcwd(), "camera_params.json")):
     data = None
     with open(json_path, 'r', encoding='utf-8') as f:
-        data = json.load(json_path)
+        data = json.load(f)
     cams = []
     for name in names:
         fisheye = True
@@ -57,7 +62,7 @@ def get_cameras(extrinsics_grad = False, names=names, device=device, json_path=o
         tvec = torch.tensor(cam_info["tvec"], requires_grad=extrinsics_grad, dtype = torch.double, device=device).squeeze()
         K_mx = np.array(cam_info["K_mx"], dtype=np.float64).reshape(3,3)
         dvec = np.array(cam_info["dvec"], dtype=np.float64).flatten()
-        cam = Camera(name, rvec, tvec, dvec, fisheye)
+        cam = Camera(name, rvec, tvec, K_mx, dvec, fisheye)
         cams.append(cam)
     return cams
 
