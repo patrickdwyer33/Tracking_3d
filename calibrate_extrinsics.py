@@ -148,7 +148,7 @@ def Compute_Residuals(
 
 if __name__ == "__main__":
 
-    base_path = os.path.join(os.getcwd(), "camera_parameters.json")
+    base_path = os.path.join(os.getcwd(), "camera_params.json")
 
     if len(sys.argv) > 1:
         for arg in sys.argv[1:]:
@@ -185,14 +185,14 @@ if __name__ == "__main__":
     if not torch.cuda.is_available():
         data_loader = DataLoader(
             Training_Data,
-            batch_size = 5,
+            batch_size = 1,
             #num_workers = num_cpu_cores, # This works on google collab, but I couldn't get it to work on my machine
             shuffle = True
         )
     else:
         data_loader = DataLoader(
             Training_Data,
-            batch_size = 5,
+            batch_size = 1,
             #num_workers = num_cpu_cores, # This works on google collab, but I couldn't get it to work on my machine
             shuffle = True,
             pin_memory = True
@@ -200,7 +200,7 @@ if __name__ == "__main__":
 
     all_labels = []
     for idx, batch in enumerate(data_loader):
-        labels = batch[1]
+        labels = batch[1].squeeze()
         gc.collect()
         labels = labels.t()
         labels = labels.reshape(8, 4, 2)
@@ -215,7 +215,7 @@ if __name__ == "__main__":
 
     best_params = []
     data = None
-    with open(base_path+"camera_parameters.json") as f:
+    with open(base_path, 'r') as f:
         data = json.load(f)
         counter = data['counter']
         max_params = data['best_params']
@@ -228,14 +228,14 @@ if __name__ == "__main__":
     Ts = []
     for i in range(N_cams):
         if i == 1: continue
-        T = cams[i].T
+        T = cams[i].T.reshape(1, 4, 4)
         Ts.append(T)
     
     for_param_Ts = torch.cat(Ts, dim=0)
 
-    Rmx1 = for_param_Ts[0,:,:3]
-    Rmx2 = for_param_Ts[1,:,:3]
-    Rmx3 = for_param_Ts[2,:,:3]
+    Rmx1 = for_param_Ts[0,:3,:3]
+    Rmx2 = for_param_Ts[1,:3,:3]
+    Rmx3 = for_param_Ts[2,:3,:3]
     Rmx1 = utils.to_numpy(torch.clone(Rmx1)).reshape(3,3)
     Rmx2 = utils.to_numpy(torch.clone(Rmx2)).reshape(3,3)
     Rmx3 = utils.to_numpy(torch.clone(Rmx3)).reshape(3,3)
@@ -243,7 +243,7 @@ if __name__ == "__main__":
     Rvec2 = torch.tensor(cv2.Rodrigues(Rmx2)[0], dtype=torch.double, device=device).view(1,3)
     Rvec3 = torch.tensor(cv2.Rodrigues(Rmx3)[0], dtype=torch.double, device=device).view(1,3)
     rvecs = torch.cat((Rvec1,Rvec2,Rvec3), dim=0).view(3,1,3)
-    tvecs = torch.cat((for_param_Ts[0,:,3].view(1,3),for_param_Ts[1,:,3].view(1,3),for_param_Ts[2,:,3].view(1,3)), dim=0).view(3,1,3)
+    tvecs = torch.cat((for_param_Ts[0,:3,3].view(1,3),for_param_Ts[1,:3,3].view(1,3),for_param_Ts[2,:3,3].view(1,3)), dim=0).view(3,1,3)
     dirs = create_dirs(image_points.clone(), cams)
     
     for k in range(counter, len(taus)):
@@ -260,7 +260,8 @@ if __name__ == "__main__":
             params = params.view(-1)
             params = params.clone().detach().requires_grad_(True)
             print("inner_idx: " + str(j))
-            print("params: " + params)
+            print("params: ")
+            print(params.detach().numpy().tolist())
             args = (image_points, dirs, cams)
             fn_wrapper = lambda x: Compute_Residuals(x, *args)
             extrinsics = torchimize_lsq_lma(params,
@@ -271,7 +272,7 @@ if __name__ == "__main__":
             loss = torch.square(fn_wrapper(extrinsics)).sum()
             best_params.append((loss,extrinsics))
         best_params.sort(key = lambda x: x[0].item())
-        with open(base_path+"camera_parameters.json", 'w') as f:
+        with open(base_path, 'w') as f:
             min_stuff = best_params[0]
             new_stuff = [min_stuff[0].detach().cpu().numpy().tolist(),min_stuff[1].detach().cpu().numpy().tolist()]
             data["best_params"] = new_stuff
