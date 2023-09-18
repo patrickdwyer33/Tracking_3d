@@ -47,13 +47,13 @@ Furthermore, the side cameras have notably poor resolution, along with significa
 
 Here is an example of an image from one of the side cameras showcasing a particularly low resolution image followed by one showcasing the high distortion.
 
-![Low Resolution Image](/reademe_images/Low-Resolution-Sample.png)
+![Low Resolution Image](/readme_images/Low-Resolution-Sample.png)
 
-![High Distortion Image](/reademe_images/High-Distortion-Sample.png)
+![High Distortion Image](/readme_images/High-Distortion-Sample.png)
 
 This indirectly resulted in inconsistent tracking with DeepLabCut as it led to inconsistent labeling when it came to creating the training data set for DeepLabCut. Often times, there were other mice behind the clear tall panes you can see above and it is sometimes hard for a human labeler to tell where the mouse in question ends and the mouse behind the pane begins. This difficulty was magnified by the lighting of the arena (which was only from the top) and the pigment of the mice used (very dark). These complications made it hard to accurately label certain body parts of the mouse.
 
-![Top Image](/reademe_images/Top-Sample.png)
+![Top Image](/readme_images/Top-Sample.png)
 
 The top camera was much higher resolution, and due to its relative location, it did not suffer from as many overlaps between the mice in the arena and the mice behind the panes.
 
