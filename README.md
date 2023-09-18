@@ -2,32 +2,12 @@
 
 This repository contains code designed to track a set of predefined mouse body parts in 3d from four simultaneous videos taken of the mouse as it moves around an arena. This project was done as a Summer project at the request of Dr. Gregory Schwartz, PhD and Devon Greer, a PhD candidate of his, through the [Schwartz Lab](http://schwartzlab.feinberg.northwestern.edu/), which is in the [Department of Ophthalmology](https://www.feinberg.northwestern.edu/sites/ophthalmology/) at Northwestern's Feinberg School of Medicine. It is additionally associated with the [Northwestern University Interdepartmental Neuroscience](https://www.nuin.northwestern.edu/) (NUIN) program. 
 
-# Outline:
-- [What's In Here?](#what's-in-here?)
-- - [model.py](#model.py)
-- - - [Why This Model?](#why-this-model)
-- - [projector.py](#projector.py)
-- - [calibrate_extrinsics.py](#calibrate_extrinsics.py)
-- - - [Calibration Complications](#calibration-complications)
-- [Getting Started](#getting-started)
-- [Setup](#setup)
-- [Data Wrangling](#data-wrangling)
-- [Data Labeling](#data-labeling)
-- [Camera Extrinsic Calibration & Testing](#camera-extrinsic-calibration-&-testing)
-- [Other JSON Files](#other-json-files)
-- - [arena_info.json](#arena_info.json)
-- - [body_parts.json](#body_parts.json)
-- [Author](#author)
-- [License](#license)
-- [Acknowledgments](#acknowledgments)
-
-
 ## What's In Here?
 
 The most significant contributions of this repository can be found in the following files:
-- ./model.py
-- ./projector.py
-- ./calibrate_extrinsics.py
+* `./model.py`
+* `./projector.py`
+* `./calibrate_extrinsics.py`
 
 ### model.py
 
@@ -66,6 +46,7 @@ These pictures show the result of projecting 5 points on the floor of the arena,
 However, as we can see in the other pictures, the projections are consistently offset towards the camera. This represents a degree of error that would make traingulation using least-squares infeasible as solutions would not be representative of true 3d points. 
 
 From here, there are two ways to approach the problem. 
+
 1. We can try to fix the camera paremeters.
 2. We can try to triangulate anyway and then offset discovered 3d points by some derived mapping between true 3d points and skewed 3d points.
 
@@ -102,6 +83,7 @@ Starting from the given extrinsics, this process terminated quickly and simply d
 To attempt to ameliorate this, I ran parameter sweep on the "tau" parameter and the initial extrinsic parameters. Despite extensive search, this process proved unsuccsseful given the time frame of this project. It is possible that further sweeping would produce better parameters.
 
 There are a few possible reasons for this:
+
 1. The training data used for this process had bias in the labels or too high variance with too little data.
 2. The intrinsic camera parameters are incorrect.
 3. The implementation of Least-Squares Levenberg-Marquardt from [Torchimize]() I used was incorrect.
@@ -164,7 +146,7 @@ Of course, you can set up your own data, which will also be explained [below](#d
 
 But, if you'd like access to the data associated with this project, feel free to reach out to me at patrickdwy@icloud.com, and I will happily send the files to you.
 
-#### An Aside
+### An Aside
 
 This project contains a directory *notebooks* which contain most of the same logic and functionality you'll find throughout this project, but in a much less readable format. I did some of my research and proof of concepts in these notebooks, and then I translated these notebooks to python files that are more modular. This folder simply represents the final iteration of my exploratory work, and there is much more code I've written for this project that isn't useful at this point. As an exception, the file ./notebooks/Camera_Calibration.ipynb is a notebook I wrote specifically to run on google collab to leverage their gpu interface. 
 
@@ -180,7 +162,7 @@ In order to use the code provided herein, you must have a video dataset.
 
 This dataset must follow the following structure:
 ```
-- All_Data
+* All_Data
     - trial1
         - cam1.videofile
         - ...
