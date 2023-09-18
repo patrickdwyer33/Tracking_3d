@@ -82,13 +82,13 @@ Starting from the given extrinsics, this process terminated quickly and simply d
 
 To attempt to ameliorate this, I ran parameter sweep on the "tau" parameter and the initial extrinsic parameters. Despite extensive search, this process proved unsuccessful given the time frame of this project. It is possible that further sweeping would produce better parameters.
 
-There are a few possible reasons for this:
+Some possible reasons for this:
 
-1. The training data used for this process had bias in the labels or too high variance with too little data.
-2. The intrinsic camera parameters are incorrect.
-3. The implementation of Least-Squares Levenberg-Marquardt from [Torchimize](https://github.com/hahnec/torchimizehttps://github.com/hahnec/torchimize) I used was incorrect.
-4. My implementation of computing re-projection error is incorrect.
-5. OpenCV's projectPoints() implementation is incorrect.
+* The training data used for this process had bias in the labels or too high variance with too little data.
+* The intrinsic camera parameters are incorrect.
+* The implementation of Least-Squares Levenberg-Marquardt from [Torchimize](https://github.com/hahnec/torchimizehttps://github.com/hahnec/torchimize) I used was incorrect.
+* My implementation of computing re-projection error is incorrect.
+* OpenCV's `projectPoints()` implementation is incorrect.
 
 In order to avoid labeling bias as much as possible, I used about 50 consistently labeled and double checked sets of four labels, (one for each camera), of the mouse's tail, as it is the most precise point on the mouse. I also used this amount of data because the computational complexity of parameter sweeping proved to be restrictive, and I thought that to be the more important aspect at the time. I have since labeled 267 sets of 8 sets (one for each body part) of four labels. On initial attempts this data did not help, but further attempts may be successful.
 
