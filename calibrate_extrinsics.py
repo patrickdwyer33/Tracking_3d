@@ -55,9 +55,7 @@ def Compute_Residuals(
     truth_points = torch.clone(image_points)
     projectors = get_projectors(cams, params=params)
     num_cams = len(cams)
-
     triangulated_points = []
-
     for trial_dirs in dirs:
         As = []
         Bs = []
@@ -111,18 +109,17 @@ def Compute_Residuals(
             final_mx = torch.matmul(tmp_mx2, T)
             B = torch.clone(final_mx[:,3:4].squeeze())
             A = final_mx[:,:3]
-            A = torch.cat((A, torch.tensor([[0.],[0.],[0.],[1.]],dtype=params.dtype,device=params.device)), dim=1)
-            As.append(A)
+            final_A = torch.cat((A, torch.tensor([[0.],[0.],[0.],[1.]],dtype=params.dtype,device=params.device)), dim=1)
+            
+            As.append(final_A)
             Bs.append(B)
-        A = torch.cat(As, dim=0)
-        B = torch.cat(Bs, dim=0).reshape(-1, 1)
-        solution_object = torch.linalg.lstsq(A, B, driver='gels')
+        if not As:
+            triangulated_points.append(torch.tensor([-1.,-1.,35.],dtype=torch.double,device=params.device))
+            continue
+        big_A = torch.cat(As, dim=0)
+        big_B = torch.cat(Bs, dim=0).reshape(-1, 1)
+        solution_object = torch.linalg.lstsq(big_A, big_B, driver='gels')
         solution = solution_object[0].squeeze().to(torch.double)
-        #print('---------------')
-        #if solution[2] < 0:
-        #    print_debug(solution_object, A, B, num_valid, trial_Ts, trial_dirs, trial_points)
-        #else:
-        #    print(solution_object.residuals)
         solution = solution[:3]
         triangulated_points.append(solution)
 
@@ -249,7 +246,7 @@ if __name__ == "__main__":
     for k in range(counter, len(taus)):
         tau = taus[k]
         counter += 1
-        print(counter)
+        print("outer_idx" + str(counter))
         for j in range(100):
             rvecs_ = torch.clone(rvecs)
             tvecs_ = torch.clone(tvecs)
