@@ -2,9 +2,11 @@ __pycache__/
 .ipynb_checkpoints/
 All_Data/
 Training_Data/
+Evaluated_Data/
 venv/
 .DS_Store
 trained_model.pt
 labeling_state.csv
 Training_Data.zip
 All_Data.zip
+Evaluated_Data.zip

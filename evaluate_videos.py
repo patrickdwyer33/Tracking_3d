@@ -9,8 +9,6 @@ import json
 import numpy as np
 from projector import project
 from projector import get_projectors
-from torch.utils.data import DataLoader
-from dataset import get_batch
 import cv2
 from copy import deepcopy
 
@@ -71,7 +69,7 @@ if __name__ == "__main__":
 
     arena_info = None
     with open(arena_info_path, 'r', encoding="utf-8") as f:
-        arena_info = json.load(f)["names"]
+        arena_info = json.load(f)
 
     N_cams = len(cams)
 
@@ -97,10 +95,10 @@ if __name__ == "__main__":
         for i in range(N_cams):
             cam = cams[i]
             image_points = project(all_points_tensor,
-                                torch.tensor(cam.rvec,dtype=torch.double,device=device),
-                                torch.tensor(cam.tvec,dtype=torch.double,device=device),
+                                cam.rvec.clone().detach(),
+                                cam.tvec.clone().detach(),
                                 K_mx=cam.K,
-                                    D_vec=cam.D,
+                                D_vec=cam.D,
                                 fisheye=cam.fisheye
                                 )
             all_image_points.append(image_points)
@@ -185,8 +183,8 @@ if __name__ == "__main__":
 
     N_cams = len(cams)
     
-    for i in len(trial_paths):
-        trial_path = trial_path[i]
+    for i in range(len(trial_paths)):
+        trial_path = trial_paths[i]
         labels_path = os.path.join(trial_path, "labels.csv")
         if os.path.exists(labels_path):
             os.remove(labels_path)
