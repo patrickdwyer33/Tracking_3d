@@ -25,13 +25,13 @@ At the beginning of this project, the plan was to leverage [DeepLabCut](https://
 
 Furthermore, the side cameras have notably poor resolution, along with significant distortion.
 
-Here is an example of an image from one of the side cameras showcasing a particularly low resolution image followed by one showcasing the high distortion.
+Here is an example of an image from one of the side cameras showcasing the low resolution followed by one showcasing the high distortion.
 
 ![Low Resolution Image](/readme_images/Low-Resolution-Sample.png)
 
 ![High Distortion Image](/readme_images/High-Distortion-Sample.png)
 
-This indirectly resulted in inconsistent tracking with DeepLabCut as it led to inconsistent labeling when it came to creating the training data set for DeepLabCut. Often times, there were other mice behind the clear tall panes you can see above and it is sometimes hard for a human labeler to tell where the mouse in question ends and the mouse behind the pane begins. This difficulty was magnified by the lighting of the arena (which was only from the top) and the pigment of the mice used (very dark). These complications made it hard to accurately label certain body parts of the mouse.
+This indirectly resulted in inconsistent tracking with DeepLabCut as it led to difficult labeling when it came to creating the training data set for DeepLabCut. Often times, there were other mice behind the clear tall panes you can see above and it is sometimes hard for a human labeler to tell where the mouse in question ends and the mouse behind the pane begins. This difficulty was magnified by the lighting of the arena (which was only from the top) and the pigment of the mice used (very dark). These complications made it hard to accurately label certain body parts of the mouse.
 
 ![Top Image](/readme_images/Top-Sample.png)
 
@@ -58,7 +58,7 @@ Unfortunately, despite extensive parameter sweeping, I was unable to determine a
 
 So, I decided to use a model that could utilize the 3d structure of the mouse to make inferences without relying on exact 3d joint measurements. This model was inspired by a [paper](https://openaccess.thecvf.com/content/CVPR2023/papers/Sun_BKinD-3D_Self-Supervised_3D_Keypoint_Discovery_From_Multi-View_Videos_CVPR_2023_paper.pdf) shared with me by a previous professor of mine, Emma Alexander, PhD. 
 
-This paper uses a self-supervised model, which is not required in this context. So, I simplified it drastically by introducing a manually labeled dataset. The dataset consists of 267 sets of 4 images with 8 labeled body parts per image.
+This paper uses a self-supervised model, which is not required in this context. So, I simplified it drastically by introducing a manually labeled dataset. The dataset consists of 267 sets of 4 images with 8 labeled 2d body parts per image.
 
 The general idea behind this model is to construct a voxel space consisting of four channels and assign values to voxels in channel `i` in accordance with the bilinear interpolation of the projection onto camera `i`. This voxel space is then what is passed into the 3d convolutional network which infers 3d points and projects them onto ground truth values. Given enough labeled data, which I believe I have provided, and good enough extrinsic camera parameters, I am confident this model will work. 
 
